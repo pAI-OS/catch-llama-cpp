@@ -2,11 +2,11 @@
 import requests
 import platform
 import re
+import os
 import subprocess
 import cpuinfo
 import zipfile
 import tarfile
-import os
 from pathlib import Path
 
 # Downloads the best binary distribution of llama.cpp for your system and graphics card (if present)
@@ -99,9 +99,9 @@ def check_amd_gpu():
 def check_avx_support():
     print("Checking CPU for AVX support...")
     info = cpuinfo.get_cpu_info()
-    avx = 'avx' in info['flags']
-    avx2 = 'avx2' in info['flags']
-    avx512 = 'avx512f' in info['flags']
+    avx = 'avx' in info.get('flags', [])
+    avx2 = 'avx2' in info.get('flags', [])
+    avx512 = 'avx512f' in info.get('flags', [])
     print(f"AVX: {avx}, AVX2: {avx2}, AVX512: {avx512}")
     return avx, avx2, avx512
 
@@ -136,36 +136,26 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     
     available_cuda_versions = get_available_cuda_versions(assets)
     
-    # Sort CUDA versions in descending order to try the latest first
-    available_cuda_versions.sort(reverse=True)
-    
     for cuda_version in available_cuda_versions:
         required_driver_version = float(CUDA_DRIVER_MAP.get(cuda_version, {}).get(system, float('inf')))
         print(f"Checking CUDA version {cuda_version} which requires driver version {required_driver_version}")
-        if driver_version >= required_driver_version:
+        if driver_version is not None and driver_version >= required_driver_version:
             print(f"Driver version {driver_version} is sufficient for CUDA version {cuda_version}")
             for asset in assets:
-                #print(f"Checking asset: {asset['name']}")
                 if patterns[system][gpu_vendor].match(asset['name']):
                     asset_cuda_version = re.search(r'cu(\d+\.\d+\.\d+)', asset['name'])
                     if asset_cuda_version and asset_cuda_version.group(1) == cuda_version:
                         print(f"Selected asset: {asset['name']} for CUDA version {cuda_version}")
                         return asset['browser_download_url']
-                else:
-                    #print(f"Asset {asset['name']} does not match pattern {patterns[system][gpu_vendor]}")
-                    pass
         else:
-            print(f"Driver version {driver_version} is not sufficient for CUDA version {cuda_version}")
+            print(f"Driver version {driver_version} is not sufficient or not detected for CUDA version {cuda_version}")
     
     # If no compatible CUDA version is found, fall back to CPU-only option
     print("No compatible CUDA version found. Falling back to CPU-only option.")
     for asset in assets:
-        print(f"Checking CPU-only asset: {asset['name']}")
         if patterns[system]['none'].match(asset['name']):
             print(f"Selected CPU-only asset: {asset['name']}")
             return asset['browser_download_url']
-        else:
-            print(f"CPU-only asset {asset['name']} does not match pattern {patterns[system]['none']}")
     
     print("No suitable asset found.")
     return None
@@ -193,10 +183,27 @@ def download_and_extract(url, download_dir, extract_dir):
         print("Extracting zip file...")
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             zip_ref.extractall(extract_dir)
+        # Check if binaries are in 'build/bin' and move them if necessary
+        build_bin_path = extract_dir / 'build' / 'bin'
+        if build_bin_path.exists():
+            for item in build_bin_path.iterdir():
+                target_path = extract_dir / item.name
+                item.rename(target_path)
+            build_bin_path.rmdir()  # Remove the now empty 'bin' directory
+            (extract_dir / 'build').rmdir()  # Remove the now empty 'build' directory
     elif file_path.suffix in ['.tar', '.gz', '.bz2']:
         print("Extracting tar file...")
         with tarfile.open(file_path, 'r:*') as tar_ref:
             tar_ref.extractall(extract_dir)
+
+    # Set execute permissions for likely binaries on POSIX systems (Linux, Darwin, etc.)
+    if os.name == 'posix':  # Check if running on a POSIX-compliant system
+        non_binary_extensions = {'.txt', '.md', '.json', '.xml'}
+        for item in extract_dir.iterdir():
+            if item.suffix not in non_binary_extensions:
+                item.chmod(item.stat().st_mode | 0o111)  # Add execute permissions
+        print("Set execute permissions for binaries on POSIX system.")
+
     print("Extraction complete.")
 
 def run_binary_with_version(extract_dir):
@@ -206,6 +213,7 @@ def run_binary_with_version(extract_dir):
         print(f"Running {binary_name} with '--version' to verify...")
         result = subprocess.run([str(binary_path), '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         print(result.stderr)
+        return result
     except Exception as e:
         print(f"Failed to run {binary_name}: {e}")
 
@@ -232,8 +240,12 @@ def main():
     print("Download process completed.")
 
     # Run the extracted binary with '--version'
-    run_binary_with_version(EXTRACT_DIR)
+    result = run_binary_with_version(EXTRACT_DIR)
+    if (result.returncode != 0):
+        print("Binary failed to run. I'm sorry it didn't work out.")
+        exit(1)
+    else:
+        print(f"{os.path.basename(__file__)}: It really whips the llama's ass!")
 
 if __name__ == "__main__":
     main()
-
