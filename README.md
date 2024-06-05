@@ -1,4 +1,4 @@
-# catch-llama-cpp.py
+# latest-llama-cpp.py
 
 This script automates the process of downloading and setting up the best binary distribution of `llama.cpp` for your system and graphics card (if present).
 
@@ -29,7 +29,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
 
 2. **Run the Script**:
     ```bash
-    python catch-llama-cpp.py
+    python latest-llama-cpp.py
     ```
 
 ## How It Works
