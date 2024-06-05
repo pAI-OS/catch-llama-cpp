@@ -8,6 +8,7 @@ import cpuinfo
 import zipfile
 import tarfile
 from pathlib import Path
+from packaging import version
 
 # Downloads the best binary distribution of llama.cpp for your system and graphics card (if present)
 
@@ -137,9 +138,9 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     available_cuda_versions = get_available_cuda_versions(assets)
     
     for cuda_version in available_cuda_versions:
-        required_driver_version = float(CUDA_DRIVER_MAP.get(cuda_version, {}).get(system, float('inf')))
+        required_driver_version = CUDA_DRIVER_MAP.get(cuda_version, {}).get(system, 'inf')
         print(f"Checking CUDA version {cuda_version} which requires driver version {required_driver_version}")
-        if driver_version is not None and driver_version >= required_driver_version:
+        if driver_version is not None and version.parse(driver_version) >= version.parse(required_driver_version):
             print(f"Driver version {driver_version} is sufficient for CUDA version {cuda_version}")
             for asset in assets:
                 if patterns[system][gpu_vendor].match(asset['name']):
