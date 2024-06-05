@@ -22,14 +22,20 @@ It fetches the latest release from GitHub, detects your system's specifications,
 
 ## Usage
 
-1. **Install Dependencies**:
+1. **POSIX (Linux, macOS, etc.)**:
     ```bash
-    pip install requests py-cpuinfo
+    % python -m venv .venv
+    % source ./.venv/bin/activate
+    (.venv) % pip install -r requirements.txt
+    (.venv) % ./latest-llama-cpp.py
     ```
 
-2. **Run the Script**:
+2. **Windows**:
     ```bash
-    python latest-llama-cpp.py
+    > python -m venv .venv
+    > .\.venv\Scripts\avtivate.ps1
+    > pip install -r requirements.txt
+    > python latest-llama-cpp.py
     ```
 
 ## How It Works
