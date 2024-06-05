@@ -52,9 +52,9 @@ It fetches the latest release from GitHub, detects your system's specifications,
 
 A Containerfile has been included for limited testing on Linux:
 
-```
-podman build -t latest-llama-cpp .
-podman run -it latest-llama-cpp
+    ```
+    % podman build -t latest-llama-cpp .
+    % podman run -it latest-llama-cpp
 ```
 
 ## Notes
