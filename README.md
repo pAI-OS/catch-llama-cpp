@@ -23,6 +23,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
 ## Usage
 
 **POSIX (Linux, macOS, etc.)**:
+
     ```bash
     % python -m venv .venv
     % source ./.venv/bin/activate
@@ -31,6 +32,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
     ```
 
 **Windows**:
+
     ```bash
     > python -m venv .venv
     > .\.venv\Scripts\avtivate.ps1
