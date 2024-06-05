@@ -9,6 +9,8 @@ COPY . /app
 
 # Install system dependencies required for potential binary handling and other operations
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    libcurl4 \
     zip \
     unzip \
     tar \

@@ -42,6 +42,15 @@ It fetches the latest release from GitHub, detects your system's specifications,
 6. **Download and Extract**: Downloads the selected binary and extracts it to the specified directory.
 7. **Run Verification**: Runs the binary with `--version` to ensure it was set up correctly.
 
+## Testing
+
+A Containerfile has been included for limited testing on Linux:
+
+```
+podman build -t latest-llama-cpp .
+podman run -it latest-llama-cpp
+```
+
 ## Notes
 
 - Ensure you have the necessary permissions to run `nvidia-smi` and `lspci` commands.

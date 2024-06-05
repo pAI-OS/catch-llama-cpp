@@ -140,7 +140,7 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     for cuda_version in available_cuda_versions:
         required_driver_version = CUDA_DRIVER_MAP.get(cuda_version, {}).get(system, 'inf')
         print(f"Checking CUDA version {cuda_version} which requires driver version {required_driver_version}")
-        if driver_version is not None and version.parse(driver_version) >= version.parse(required_driver_version):
+        if driver_version is not None and version.parse(str(driver_version)) >= version.parse(required_driver_version):
             print(f"Driver version {driver_version} is sufficient for CUDA version {cuda_version}")
             for asset in assets:
                 if patterns[system][gpu_vendor].match(asset['name']):
