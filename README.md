@@ -1,6 +1,6 @@
-# latest-llama-cpp.py
+# latest-llama-cpp
 
-This script automates the process of downloading and setting up the best binary distribution of `llama.cpp` for your system and graphics card (if present).
+This Python script automates the process of downloading and setting up the best binary distribution of `llama.cpp` for your system and graphics card (if present).
 
 It fetches the latest release from GitHub, detects your system's specifications, and selects the most suitable binary for your setup.
 
