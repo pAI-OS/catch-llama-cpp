@@ -22,7 +22,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
 
 ## Usage
 
-1. **POSIX (Linux, macOS, etc.)**:
+**POSIX (Linux, macOS, etc.)**:
     ```bash
     % python -m venv .venv
     % source ./.venv/bin/activate
@@ -30,7 +30,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
     (.venv) % ./latest-llama-cpp.py
     ```
 
-2. **Windows**:
+**Windows**:
     ```bash
     > python -m venv .venv
     > .\.venv\Scripts\avtivate.ps1
@@ -55,7 +55,7 @@ A Containerfile has been included for limited testing on Linux:
     ```
     % podman build -t latest-llama-cpp .
     % podman run -it latest-llama-cpp
-```
+    ```
 
 ## Notes
 
