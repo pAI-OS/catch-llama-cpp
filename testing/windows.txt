@@ -1,4 +1,5 @@
-> python .\latest-llama-cpp.py
+PS C:\> .\.venv\Scripts\activate.ps1
+(.venv) PS C:\> python .\latest-llama-cpp.py
 Starting the download process...
 Fetching the latest release information from GitHub...
 Latest release information fetched successfully.

@@ -1,0 +1,63 @@
+% rm -rf .venv
+% rm -rf llama.cpp
+% python -m venv .venv
+% source ./.venv/bin/activate
+(.venv) % pip install -r requirements.txt
+Collecting requests (from -r requirements.txt (line 1))
+  Using cached requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting py-cpuinfo (from -r requirements.txt (line 2))
+  Using cached py_cpuinfo-9.0.0-py3-none-any.whl.metadata (794 bytes)
+Collecting packaging (from -r requirements.txt (line 3))
+  Using cached packaging-24.0-py3-none-any.whl.metadata (3.2 kB)
+Collecting charset-normalizer<4,>=2 (from requests->-r requirements.txt (line 1))
+  Using cached charset_normalizer-3.3.2-cp312-cp312-macosx_11_0_arm64.whl.metadata (33 kB)
+Collecting idna<4,>=2.5 (from requests->-r requirements.txt (line 1))
+  Using cached idna-3.7-py3-none-any.whl.metadata (9.9 kB)
+Collecting urllib3<3,>=1.21.1 (from requests->-r requirements.txt (line 1))
+  Using cached urllib3-2.2.1-py3-none-any.whl.metadata (6.4 kB)
+Collecting certifi>=2017.4.17 (from requests->-r requirements.txt (line 1))
+  Using cached certifi-2024.6.2-py3-none-any.whl.metadata (2.2 kB)
+Using cached requests-2.32.3-py3-none-any.whl (64 kB)
+Using cached py_cpuinfo-9.0.0-py3-none-any.whl (22 kB)
+Using cached packaging-24.0-py3-none-any.whl (53 kB)
+Using cached certifi-2024.6.2-py3-none-any.whl (164 kB)
+Using cached charset_normalizer-3.3.2-cp312-cp312-macosx_11_0_arm64.whl (119 kB)
+Using cached idna-3.7-py3-none-any.whl (66 kB)
+Using cached urllib3-2.2.1-py3-none-any.whl (121 kB)
+Installing collected packages: py-cpuinfo, urllib3, packaging, idna, charset-normalizer, certifi, requests
+Successfully installed certifi-2024.6.2 charset-normalizer-3.3.2 idna-3.7 packaging-24.0 py-cpuinfo-9.0.0 requests-2.32.3 urllib3-2.2.1
+(.venv) % ./latest-llama-cpp.py
+Starting the download process...
+Fetching the latest release information from GitHub...
+Latest release information fetched successfully.
+Detecting system information...
+System: darwin, Architecture: arm64
+Checking CUDA version using nvidia-smi...
+nvidia-smi not found. No NVIDIA GPU detected.
+Checking driver version using nvidia-smi...
+nvidia-smi not found. No NVIDIA GPU detected.
+NVIDIA GPU detected: False, CUDA version: None, Driver version: None
+Checking for AMD GPU using lspci...
+lspci not found. No AMD GPU detected.
+Checking CPU for AVX support...
+AVX: False, AVX2: False, AVX512: False
+Selecting the best asset for the system...
+Extracting available CUDA versions from assets...
+Available CUDA versions: ['12.2.0', '11.7.1']
+Checking CUDA version 12.2.0 which requires driver version inf
+Driver version None is not sufficient or not detected for CUDA version 12.2.0
+Checking CUDA version 11.7.1 which requires driver version inf
+Driver version None is not sufficient or not detected for CUDA version 11.7.1
+No compatible CUDA version found. Falling back to CPU-only option.
+Selected CPU-only asset: llama-b3089-bin-macos-arm64.zip
+Downloading asset from https://github.com/ggerganov/llama.cpp/releases/download/b3089/llama-b3089-bin-macos-arm64.zip...
+Downloaded asset to downloads/llama-b3089-bin-macos-arm64.zip
+Extracting zip file...
+Set execute permissions for binaries on POSIX system.
+Extraction complete.
+Download process completed.
+Running main with '--version' to verify...
+version: 3089 (c90dbe02)
+built with Apple clang version 15.0.0 (clang-1500.0.40.1) for arm64-apple-darwin23.5.0
+
+latest-llama-cpp.py: It really whips the llama's ass!
