@@ -50,3 +50,4 @@ It fetches the latest release from GitHub, detects your system's specifications,
 ## License
 
 This project is licensed under the MIT License.
+
