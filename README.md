@@ -1,4 +1,4 @@
-# latest-llama-cpp
+# llama_cpp_fetcher
 
 This Python script automates the process of downloading and setting up the best binary distribution of `llama.cpp` for your system and graphics card (if present).
 
@@ -28,7 +28,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
     % python -m venv .venv
     % source ./.venv/bin/activate
     (.venv) % pip install -r requirements.txt
-    (.venv) % ./latest-llama-cpp.py
+    (.venv) % ./llama_cpp_fetcher.py
     ```
 
 **Windows**:
@@ -37,7 +37,7 @@ It fetches the latest release from GitHub, detects your system's specifications,
     > python -m venv .venv
     > .\.venv\Scripts\avtivate.ps1
     > pip install -r requirements.txt
-    > python latest-llama-cpp.py
+    > python llama_cpp_fetcher.py
     ```
 
 ## How It Works
@@ -55,8 +55,8 @@ It fetches the latest release from GitHub, detects your system's specifications,
 A Containerfile has been included for limited testing on Linux:
 
     ```
-    % podman build -t latest-llama-cpp .
-    % podman run -it latest-llama-cpp
+    % podman build -t llama_cpp_fetcher .
+    % podman run -it llama_cpp_fetcher
     ```
 
 ## Notes
@@ -67,4 +67,3 @@ A Containerfile has been included for limited testing on Linux:
 ## License
 
 This project is licensed under the MIT License.
-

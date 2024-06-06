@@ -1,5 +1,5 @@
-> podman build -t latest-llama-cpp .
-> podman run -it latest-llama-cpp
+> podman build -t llama_cpp_fetcher .
+> podman run -it llama_cpp_fetcher
 Starting the download process...
 Fetching the latest release information from GitHub...
 Latest release information fetched successfully.
@@ -33,4 +33,4 @@ Running main with '--version' to verify...
 version: 3089 (c90dbe02)
 built with cc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 for x86_64-linux-gnu
 
-latest-llama-cpp.py: It really whips the llama's ass!
+llama_cpp_fetcher.py: It really whips the llama's ass!

@@ -1,5 +1,5 @@
 PS C:\> .\.venv\Scripts\activate.ps1
-(.venv) PS C:\> python .\latest-llama-cpp.py
+(.venv) PS C:\> python .\llama_cpp_fetcher.py
 Starting the download process...
 Fetching the latest release information from GitHub...
 Latest release information fetched successfully.
@@ -27,4 +27,4 @@ Running main.exe with '--version' to verify...
 version: 3089 (c90dbe02)
 built with MSVC 19.39.33523.0 for x64
 
-latest-llama-cpp.py: It really whips the llama's ass!
+llama_cpp_fetcher.py: It really whips the llama's ass!
