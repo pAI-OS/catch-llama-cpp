@@ -24,7 +24,7 @@ setup(
     description="Fetches the latest and best version of llama.cpp for your system.",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url="https://github.com/yourusername/fetch_llama_cpp",
+    url="https://github.com/pAI-OS/fetch_llama_cpp",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
