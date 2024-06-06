@@ -250,7 +250,7 @@ def fetch():
     return result.returncode
 
 if __name__ == "__main__":
-    PRINT_DEBUG = True
+    DEBUG_PRINT = True
     result = fetch()
     if (result != 0):
         debug_print("Binary failed to run. I'm sorry it didn't work out.")
