@@ -21,7 +21,7 @@ setup(
     },
     author="Sam Johnston",
     author_email="samj@samj.net",
-    description="A package to fetch the latest and best version of llama.cpp for your system programmatically.",
+    description="Fetches the latest and best version of llama.cpp for your system.",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/yourusername/fetch_llama_cpp",
