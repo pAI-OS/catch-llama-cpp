@@ -288,7 +288,7 @@ def fetch():
     
     return result
 
-if __name__ == "__main__":
+def main():
     #DEBUG=True
     try:
         result = fetch()
@@ -315,3 +315,6 @@ if __name__ == "__main__":
         exit(1)
     else:
         print(f"{os.path.basename(__file__)}: It really whips the llama's ass! - Winamp (1997)")
+
+if __name__ == "__main__":
+    main()

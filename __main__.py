@@ -6,10 +6,7 @@ the latest and best version of llama.cpp for their system:
   python -m fetch_llama_cpp
 
 """
-from .fetch_llama_cpp import fetch
-
-def main():
-    fetch()
+from .fetch_llama_cpp import main
 
 if __name__ == "__main__":
     main()
