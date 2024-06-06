@@ -1,2 +1,0 @@
-[console_scripts]
-fetch_llama_cpp = fetch_llama_cpp:fetch
