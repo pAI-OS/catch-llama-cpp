@@ -28,7 +28,7 @@ specifications, and selects the most suitable binary for your setup.
 
 ## Usage
 
-There are 4 ways you can run fetch_llama_cpp:
+There are several ways to run fetch_llama_cpp:
 
 **1. As a module**
 
@@ -50,7 +50,7 @@ import fetch_llama_cpp
 fetch_llama_cpp.fetch()
 ```
 
-**3. As a container**
+**4. As a container**
 
 ```bash
 % podman run -v $PWD:/app fetch_llama_cpp
