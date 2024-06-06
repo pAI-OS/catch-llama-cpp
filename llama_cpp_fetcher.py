@@ -14,8 +14,9 @@ from packaging import version
 
 # GitHub API URL for the latest release
 GITHUB_API_URL = "https://api.github.com/repos/ggerganov/llama.cpp/releases/latest"
-DOWNLOAD_DIR = Path("downloads")
 EXTRACT_DIR = Path("llama.cpp")
+DOWNLOAD_DIR = EXTRACT_DIR
+DEBUG_PRINT = False
 
 # CUDA version to driver version mapping
 CUDA_DRIVER_MAP = {
@@ -35,45 +36,49 @@ CUDA_DRIVER_MAP = {
     "11.7.1": {"linux": "515.48.07", "windows": "516.31"}
 }
 
+def debug_print(message, **kwargs):
+    if DEBUG_PRINT:
+        print(message, **kwargs)
+
 def get_latest_release():
-    print("Fetching the latest release information from GitHub...")
+    debug_print("Fetching the latest release information from GitHub...")
     response = requests.get(GITHUB_API_URL)
     response.raise_for_status()
-    print("Latest release information fetched successfully.")
+    debug_print("Latest release information fetched successfully.")
     return response.json()
 
 def get_system_info():
-    print("Detecting system information...")
+    debug_print("Detecting system information...")
     system = platform.system().lower()
     arch = platform.machine().lower()
-    print(f"System: {system}, Architecture: {arch}")
+    debug_print(f"System: {system}, Architecture: {arch}")
     return system, arch
 
 def get_cuda_version_from_nvidia_smi():
     try:
-        print("Checking CUDA version using nvidia-smi...")
+        debug_print("Checking CUDA version using nvidia-smi...")
         result = subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, text=True)
         match = re.search(r'CUDA Version: (\d+\.\d+)', result.stdout)
         if match:
             cuda_version = match.group(1)
-            print(f"Detected CUDA version: {cuda_version}")
+            debug_print(f"Detected CUDA version: {cuda_version}")
             return cuda_version
     except FileNotFoundError:
-        print("nvidia-smi not found. No NVIDIA GPU detected.")
+        debug_print("nvidia-smi not found. No NVIDIA GPU detected.")
         return None
     return None
 
 def get_driver_version_from_nvidia_smi():
     try:
-        print("Checking driver version using nvidia-smi...")
+        debug_print("Checking driver version using nvidia-smi...")
         result = subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, text=True)
         match = re.search(r'Driver Version: (\d+\.\d+)', result.stdout)
         if match:
             driver_version = float(match.group(1))
-            print(f"Detected driver version: {driver_version}")
+            debug_print(f"Detected driver version: {driver_version}")
             return driver_version
     except FileNotFoundError:
-        print("nvidia-smi not found. No NVIDIA GPU detected.")
+        debug_print("nvidia-smi not found. No NVIDIA GPU detected.")
         return None
     return None
 
@@ -81,44 +86,44 @@ def check_nvidia_gpu():
     cuda_version = get_cuda_version_from_nvidia_smi()
     driver_version = get_driver_version_from_nvidia_smi()
     has_gpu = cuda_version is not None
-    print(f"NVIDIA GPU detected: {has_gpu}, CUDA version: {cuda_version}, Driver version: {driver_version}")
+    debug_print(f"NVIDIA GPU detected: {has_gpu}, CUDA version: {cuda_version}, Driver version: {driver_version}")
     return has_gpu, 'nvidia', cuda_version, driver_version
 
 def check_amd_gpu():
     try:
-        print("Checking for AMD GPU using lspci...")
+        debug_print("Checking for AMD GPU using lspci...")
         result = subprocess.run(['lspci'], stdout=subprocess.PIPE, text=True)
         if 'AMD' in result.stdout:
-            print("AMD GPU detected.")
+            debug_print("AMD GPU detected.")
             return True, 'amd', None
     except FileNotFoundError:
-        print("lspci not found. No AMD GPU detected.")
+        debug_print("lspci not found. No AMD GPU detected.")
         return False, None, None
-    print("No AMD GPU detected.")
+    debug_print("No AMD GPU detected.")
     return False, None, None
 
 def check_avx_support():
-    print("Checking CPU for AVX support...")
+    debug_print("Checking CPU for AVX support...")
     info = cpuinfo.get_cpu_info()
     avx = 'avx' in info.get('flags', [])
     avx2 = 'avx2' in info.get('flags', [])
     avx512 = 'avx512f' in info.get('flags', [])
-    print(f"AVX: {avx}, AVX2: {avx2}, AVX512: {avx512}")
+    debug_print(f"AVX: {avx}, AVX2: {avx2}, AVX512: {avx512}")
     return avx, avx2, avx512
 
 def get_available_cuda_versions(assets):
-    print("Extracting available CUDA versions from assets...")
+    debug_print("Extracting available CUDA versions from assets...")
     cuda_versions = set()
     for asset in assets:
         match = re.search(r'cu(\d+\.\d+\.\d+)', asset['name'])
         if match:
             cuda_versions.add(match.group(1))
     sorted_versions = sorted(cuda_versions, reverse=True)
-    print(f"Available CUDA versions: {sorted_versions}")
+    debug_print(f"Available CUDA versions: {sorted_versions}")
     return sorted_versions
 
 def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx2, avx512):
-    print("Selecting the best asset for the system...")
+    debug_print("Selecting the best asset for the system...")
     patterns = {
         'linux': {
             'nvidia': re.compile(r'.*ubuntu-x64.*\.zip'),
@@ -139,30 +144,30 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     
     for cuda_version in available_cuda_versions:
         required_driver_version = CUDA_DRIVER_MAP.get(cuda_version, {}).get(system, 'inf')
-        print(f"Checking CUDA version {cuda_version} which requires driver version {required_driver_version}")
+        debug_print(f"Checking CUDA version {cuda_version} which requires driver version {required_driver_version}")
         if driver_version is not None and version.parse(str(driver_version)) >= version.parse(required_driver_version):
-            print(f"Driver version {driver_version} is sufficient for CUDA version {cuda_version}")
+            debug_print(f"Driver version {driver_version} is sufficient for CUDA version {cuda_version}")
             for asset in assets:
                 if patterns[system][gpu_vendor].match(asset['name']):
                     asset_cuda_version = re.search(r'cu(\d+\.\d+\.\d+)', asset['name'])
                     if asset_cuda_version and asset_cuda_version.group(1) == cuda_version:
-                        print(f"Selected asset: {asset['name']} for CUDA version {cuda_version}")
+                        debug_print(f"Selected asset: {asset['name']} for CUDA version {cuda_version}")
                         return asset['browser_download_url']
         else:
-            print(f"Driver version {driver_version} is not sufficient or not detected for CUDA version {cuda_version}")
+            debug_print(f"Driver version {driver_version} is not sufficient or not detected for CUDA version {cuda_version}")
     
     # If no compatible CUDA version is found, fall back to CPU-only option
-    print("No compatible CUDA version found. Falling back to CPU-only option.")
+    debug_print("No compatible CUDA version found. Falling back to CPU-only option.")
     for asset in assets:
         if patterns[system]['none'].match(asset['name']):
-            print(f"Selected CPU-only asset: {asset['name']}")
+            debug_print(f"Selected CPU-only asset: {asset['name']}")
             return asset['browser_download_url']
     
-    print("No suitable asset found.")
+    debug_print("No suitable asset found.")
     return None
 
 def download_and_extract(url, download_dir, extract_dir):
-    print(f"Downloading asset from {url}...")
+    debug_print(f"Downloading asset from {url}...")
     
     # Ensure the download directory exists
     download_dir.mkdir(parents=True, exist_ok=True)
@@ -175,13 +180,13 @@ def download_and_extract(url, download_dir, extract_dir):
     
     with open(file_path, 'wb') as file:
         file.write(response.content)
-    print(f"Downloaded asset to {file_path}")
+    debug_print(f"Downloaded asset to {file_path}")
     
     # Ensure the extraction directory exists
     extract_dir.mkdir(parents=True, exist_ok=True)
     
     if file_path.suffix == '.zip':
-        print("Extracting zip file...")
+        debug_print("Extracting zip file...")
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             zip_ref.extractall(extract_dir)
         # Check if binaries are in 'build/bin' and move them if necessary
@@ -193,7 +198,7 @@ def download_and_extract(url, download_dir, extract_dir):
             build_bin_path.rmdir()  # Remove the now empty 'bin' directory
             (extract_dir / 'build').rmdir()  # Remove the now empty 'build' directory
     elif file_path.suffix in ['.tar', '.gz', '.bz2']:
-        print("Extracting tar file...")
+        debug_print("Extracting tar file...")
         with tarfile.open(file_path, 'r:*') as tar_ref:
             tar_ref.extractall(extract_dir)
 
@@ -203,23 +208,23 @@ def download_and_extract(url, download_dir, extract_dir):
         for item in extract_dir.iterdir():
             if item.suffix not in non_binary_extensions:
                 item.chmod(item.stat().st_mode | 0o111)  # Add execute permissions
-        print("Set execute permissions for binaries on POSIX system.")
+        debug_print("Set execute permissions for binaries on POSIX system.")
 
-    print("Extraction complete.")
+    debug_print("Extraction complete.")
 
 def run_binary_with_version(extract_dir):
     binary_name = "main.exe" if platform.system().lower() == "windows" else "main"
     binary_path = extract_dir / binary_name
     try:
-        print(f"Running {binary_name} with '--version' to verify...")
+        debug_print(f"Running {binary_name} with '--version' to verify...")
         result = subprocess.run([str(binary_path), '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        print(result.stderr)
+        debug_print(result.stderr)
         return result
     except Exception as e:
-        print(f"Failed to run {binary_name}: {e}")
+        debug_print(f"Failed to run {binary_name}: {e}")
 
 def fetch():
-    print("Starting the download process...")
+    debug_print("Starting the download process...")
     release_info = get_latest_release()
     system, arch = get_system_info()
     has_gpu, gpu_vendor, cuda_version, driver_version = check_nvidia_gpu()
@@ -236,17 +241,19 @@ def fetch():
     if asset_url:
         download_and_extract(asset_url, DOWNLOAD_DIR, EXTRACT_DIR)
     else:
-        print("No suitable binary found for your system.")
+        debug_print("No suitable binary found for your system.")
     
-    print("Download process completed.")
+    debug_print("Download process completed.")
 
     # Run the extracted binary with '--version'
     result = run_binary_with_version(EXTRACT_DIR)
-    if (result.returncode != 0):
-        print("Binary failed to run. I'm sorry it didn't work out.")
-        exit(1)
-    else:
-        print(f"{os.path.basename(__file__)}: It really whips the llama's ass!")
+    return result.returncode
 
 if __name__ == "__main__":
-    fetch()
+    PRINT_DEBUG = True
+    result = fetch()
+    if (result != 0):
+        debug_print("Binary failed to run. I'm sorry it didn't work out.")
+        exit(1)
+    else:
+        debug_print(f"{os.path.basename(__file__)}: It really whips the llama's ass!")
