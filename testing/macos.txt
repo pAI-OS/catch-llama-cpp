@@ -26,7 +26,7 @@ Using cached idna-3.7-py3-none-any.whl (66 kB)
 Using cached urllib3-2.2.1-py3-none-any.whl (121 kB)
 Installing collected packages: py-cpuinfo, urllib3, packaging, idna, charset-normalizer, certifi, requests
 Successfully installed certifi-2024.6.2 charset-normalizer-3.3.2 idna-3.7 packaging-24.0 py-cpuinfo-9.0.0 requests-2.32.3 urllib3-2.2.1
-(.venv) % ./llama_cpp_fetcher.py
+(.venv) % ./fetch_llama_cpp.py
 Starting the download process...
 Fetching the latest release information from GitHub...
 Latest release information fetched successfully.
@@ -60,4 +60,4 @@ Running main with '--version' to verify...
 version: 3089 (c90dbe02)
 built with Apple clang version 15.0.0 (clang-1500.0.40.1) for arm64-apple-darwin23.5.0
 
-llama_cpp_fetcher.py: It really whips the llama's ass!
+fetch_llama_cpp.py: It really whips the llama's ass!

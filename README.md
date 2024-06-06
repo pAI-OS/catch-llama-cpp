@@ -1,4 +1,4 @@
-# llama_cpp_fetcher
+# fetch_llama_cpp
 
 This Python module automates downloading and setting up the latest and best
 binary distribution of `llama.cpp` for your system and graphics card
@@ -28,38 +28,38 @@ specifications, and selects the most suitable binary for your setup.
 
 ## Usage
 
-There are 4 ways you can run llama_cpp_fetcher:
+There are 4 ways you can run fetch_llama_cpp:
 
 **1. As a module**
 
     ```bash
-    % python3 -m llama_cpp_fetcher
+    % python3 -m fetch_llama_cpp
     ```
 
 **2. As a script**
 
     ```bash
-    % python3 llama_cpp_fetcher.py
+    % python3 fetch_llama_cpp.py
     ```
 
 **3. As an import**
 
     ```python
-    import llama_cpp_fetcher
+    import fetch_llama_cpp
 
-    llama_cpp_fetcher.fetch()
+    fetch_llama_cpp.fetch()
     ```
 
 **3. As a container**
 
     ```bash
-    % podman run -v $PWD:/app llama_cpp_fetcher
-    % docker run -v $PWD:/app llama_cpp_fetcher
+    % podman run -v $PWD:/app fetch_llama_cpp
+    % docker run -v $PWD:/app fetch_llama_cpp
     ```
 
 ## Environment
 
-llama_cpp_fetcher is designed to be run in a Python 3 environment:
+fetch_llama_cpp is designed to be run in a Python 3 environment:
 
 **POSIX (Linux, macOS, etc.)**:
 
@@ -67,7 +67,7 @@ llama_cpp_fetcher is designed to be run in a Python 3 environment:
     % python -m venv .venv
     % source ./.venv/bin/activate
     (.venv) % pip install -r requirements.txt
-    (.venv) % ./llama_cpp_fetcher.py
+    (.venv) % ./fetch_llama_cpp.py
     ```
 
 **Windows**:
@@ -76,7 +76,7 @@ llama_cpp_fetcher is designed to be run in a Python 3 environment:
     > python -m venv .venv
     > .\.venv\Scripts\avtivate.ps1
     > pip install -r requirements.txt
-    > python llama_cpp_fetcher.py
+    > python fetch_llama_cpp.py
     ```
 
 ## How It Works

@@ -3,13 +3,13 @@
 Allows users to import the package and fetch the latest and best version
 of llama.cpp for their system programatically:
 
-  import llama_cpp_fetcher
+  import fetch_llama_cpp
 
-  llama_cpp_fetcher.fetch()
+  fetch_llama_cpp.fetch()
 """
-from .llama_cpp_fetcher import fetch
+from .fetch_llama_cpp import fetch
 
-"""Top-level package for llama_cpp_fetcher."""
+"""Top-level package for fetch_llama_cpp."""
 
 __author__ = 'Sam Johnston'
 __email__ = 'samj@samj.net'

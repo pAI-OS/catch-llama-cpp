@@ -23,4 +23,4 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 RUN mkdir -p /app/llama.cpp
 
 # Run latest-llama-cpp.py when the container launches
-CMD ["python", "llama_cpp_fetcher.py"]
+CMD ["python", "fetch_llama_cpp.py"]
