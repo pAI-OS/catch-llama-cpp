@@ -32,30 +32,30 @@ There are 4 ways you can run fetch_llama_cpp:
 
 **1. As a module**
 
-    ```bash
-    % python3 -m fetch_llama_cpp
-    ```
+```bash
+% python3 -m fetch_llama_cpp
+```
 
 **2. As a script**
 
-    ```bash
-    % python3 fetch_llama_cpp.py
-    ```
+```bash
+% python3 fetch_llama_cpp.py
+```
 
 **3. As an import**
 
-    ```python
-    import fetch_llama_cpp
+```python
+import fetch_llama_cpp
 
-    fetch_llama_cpp.fetch()
-    ```
+fetch_llama_cpp.fetch()
+```
 
 **3. As a container**
 
-    ```bash
-    % podman run -v $PWD:/app fetch_llama_cpp
-    % docker run -v $PWD:/app fetch_llama_cpp
-    ```
+```bash
+% podman run -v $PWD:/app fetch_llama_cpp
+% docker run -v $PWD:/app fetch_llama_cpp
+```
 
 ## Environment
 
@@ -63,21 +63,21 @@ fetch_llama_cpp is designed to be run in a Python 3 environment:
 
 **POSIX (Linux, macOS, etc.)**:
 
-    ```bash
-    % python -m venv .venv
-    % source ./.venv/bin/activate
-    (.venv) % pip install -r requirements.txt
-    (.venv) % ./fetch_llama_cpp.py
-    ```
+```bash
+% python -m venv .venv
+% source ./.venv/bin/activate
+(.venv) % pip install -r requirements.txt
+(.venv) % ./fetch_llama_cpp.py
+```
 
 **Windows**:
 
-    ```bash
-    > python -m venv .venv
-    > .\.venv\Scripts\avtivate.ps1
-    > pip install -r requirements.txt
-    > python fetch_llama_cpp.py
-    ```
+```bash
+> python -m venv .venv
+> .\.venv\Scripts\avtivate.ps1
+> pip install -r requirements.txt
+> python fetch_llama_cpp.py
+```
 
 ## How It Works
 
