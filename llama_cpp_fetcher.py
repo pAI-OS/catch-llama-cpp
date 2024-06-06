@@ -16,7 +16,7 @@ from packaging import version
 GITHUB_API_URL = "https://api.github.com/repos/ggerganov/llama.cpp/releases/latest"
 EXTRACT_DIR = Path("llama.cpp")
 DOWNLOAD_DIR = EXTRACT_DIR
-DEBUG_PRINT = False
+DEBUG = False
 
 # CUDA version to driver version mapping
 CUDA_DRIVER_MAP = {
@@ -37,7 +37,7 @@ CUDA_DRIVER_MAP = {
 }
 
 def debug_print(message, **kwargs):
-    if DEBUG_PRINT:
+    if DEBUG:
         print(message, **kwargs)
 
 def get_latest_release():
@@ -167,61 +167,75 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     return None
 
 def download_and_extract(url, download_dir, extract_dir):
-    debug_print(f"Downloading asset from {url}...")
-    
-    # Ensure the download directory exists
-    download_dir.mkdir(parents=True, exist_ok=True)
-    
-    response = requests.get(url)
-    response.raise_for_status()
-    
-    filename = url.split('/')[-1]
-    file_path = download_dir / filename
-    
-    with open(file_path, 'wb') as file:
-        file.write(response.content)
-    debug_print(f"Downloaded asset to {file_path}")
-    
-    # Ensure the extraction directory exists
-    extract_dir.mkdir(parents=True, exist_ok=True)
-    
-    if file_path.suffix == '.zip':
-        debug_print("Extracting zip file...")
-        with zipfile.ZipFile(file_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_dir)
-        # Check if binaries are in 'build/bin' and move them if necessary
-        build_bin_path = extract_dir / 'build' / 'bin'
-        if build_bin_path.exists():
-            for item in build_bin_path.iterdir():
-                target_path = extract_dir / item.name
-                item.rename(target_path)
-            build_bin_path.rmdir()  # Remove the now empty 'bin' directory
-            (extract_dir / 'build').rmdir()  # Remove the now empty 'build' directory
-    elif file_path.suffix in ['.tar', '.gz', '.bz2']:
-        debug_print("Extracting tar file...")
-        with tarfile.open(file_path, 'r:*') as tar_ref:
-            tar_ref.extractall(extract_dir)
+    try:
+        debug_print(f"Downloading asset from {url}...")
+        
+        # Ensure the download directory exists
+        download_dir.mkdir(parents=True, exist_ok=True)
+        
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        filename = url.split('/')[-1]
+        file_path = download_dir / filename
+        
+        with open(file_path, 'wb') as file:
+            file.write(response.content)
+        debug_print(f"Downloaded asset to {file_path}")
+        
+        # Ensure the extraction directory exists
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        
+        if file_path.suffix == '.zip':
+            debug_print("Extracting zip file...")
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                zip_ref.extractall(extract_dir)
+            # Check if binaries are in 'build/bin' and move them if necessary
+            build_bin_path = extract_dir / 'build' / 'bin'
+            if build_bin_path.exists():
+                for item in build_bin_path.iterdir():
+                    target_path = extract_dir / item.name
+                    item.rename(target_path)
+                build_bin_path.rmdir()  # Remove the now empty 'bin' directory
+                (extract_dir / 'build').rmdir()  # Remove the now empty 'build' directory
+        elif file_path.suffix in ['.tar', '.gz', '.bz2']:
+            debug_print("Extracting tar file...")
+            with tarfile.open(file_path, 'r:*') as tar_ref:
+                tar_ref.extractall(extract_dir)
 
-    # Set execute permissions for likely binaries on POSIX systems (Linux, Darwin, etc.)
-    if os.name == 'posix':  # Check if running on a POSIX-compliant system
-        non_binary_extensions = {'.txt', '.md', '.json', '.xml'}
-        for item in extract_dir.iterdir():
-            if item.suffix not in non_binary_extensions:
-                item.chmod(item.stat().st_mode | 0o111)  # Add execute permissions
-        debug_print("Set execute permissions for binaries on POSIX system.")
+        # Set execute permissions for likely binaries on POSIX systems (Linux, Darwin, etc.)
+        if os.name == 'posix':  # Check if running on a POSIX-compliant system
+            non_binary_extensions = {'.txt', '.md', '.json', '.xml'}
+            for item in extract_dir.iterdir():
+                if item.suffix not in non_binary_extensions:
+                    item.chmod(item.stat().st_mode | 0o111)  # Add execute permissions
+            debug_print("Set execute permissions for binaries on POSIX system.")
 
-    debug_print("Extraction complete.")
+        debug_print("Extraction complete.")
+        return True
+    except Exception as e:
+        debug_print(f"An error occurred: {e}")
+        return False
 
-def run_binary_with_version(extract_dir):
+def run_binary_with_version(extract_dir, expected_version):
     binary_name = "main.exe" if platform.system().lower() == "windows" else "main"
     binary_path = extract_dir / binary_name
     try:
         debug_print(f"Running {binary_name} with '--version' to verify...")
         result = subprocess.run([str(binary_path), '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        debug_print(result.stderr)
-        return result
+        debug_print(f"stderr: {result.stderr}")
+        version_match = re.search(r'\b(\d+)\b', result.stderr)
+        detected_version = version_match.group(1) if version_match else None
+        
+        if ('b' + detected_version) == expected_version:
+            debug_print(f"Observed version [b]{detected_version} matches the expected version {expected_version}.")
+            return detected_version
+        else:
+            debug_print(f"Observed version [b]{detected_version} does not match the expected version {expected_version}.")
+            return None
     except Exception as e:
         debug_print(f"Failed to run {binary_name}: {e}")
+        return None
 
 def fetch():
     debug_print("Starting the download process...")
@@ -238,22 +252,60 @@ def fetch():
         release_info['assets'], system, arch, gpu_vendor, driver_version, avx, avx2, avx512
     )
     
+    result = {
+        "success": False,
+        "message": "No suitable binary found for your system.",
+        "gpu_detected": has_gpu,
+        "gpu_vendor": gpu_vendor,
+        "cuda_version": cuda_version,
+        "driver_version": driver_version,
+        "downloaded_file": None,
+        "observed_version": None
+    }
+    
     if asset_url:
         download_and_extract(asset_url, DOWNLOAD_DIR, EXTRACT_DIR)
+        debug_print("Download process completed.")
+        
+        # Extract the expected version from the release info or asset name
+        expected_version = release_info.get('tag_name')  # or parse from asset_url if needed
+        
+        # Run the extracted binary with '--version'
+        observed_version = run_binary_with_version(EXTRACT_DIR, expected_version)
+        
+        result.update({
+            "success": version is not None,
+            "message": "Suitable binary was found and ran successfully." if version is not None else "Suitable binary was found but failed to run.",
+            "downloaded_file": asset_url.split('/')[-1] if asset_url else None,
+            "expected_version": expected_version,
+            "observed_version": observed_version
+        })
     else:
         debug_print("No suitable binary found for your system.")
     
-    debug_print("Download process completed.")
-
-    # Run the extracted binary with '--version'
-    result = run_binary_with_version(EXTRACT_DIR)
-    return result.returncode
+    return result
 
 if __name__ == "__main__":
-    DEBUG_PRINT = True
-    result = fetch()
-    if (result != 0):
-        debug_print("Binary failed to run. I'm sorry it didn't work out.")
+    #DEBUG=True
+    try:
+        result = fetch()
+    except Exception as e:
+        if DEBUG:
+            raise
+        else:
+            print(f"An exception occurred: {e}")
+
+    print(f"Expected version: {result['expected_version']}")
+    print(f"Observed version: [b]{result['observed_version']}")
+    print(f"Downloaded File: {result['downloaded_file']}")
+    print(f"GPU Detected: {result['gpu_detected']}")
+    print(f"GPU Vendor: {result['gpu_vendor']}")
+    print(f"CUDA Version: {result['cuda_version']}")
+    print(f"Driver Version: {result['driver_version']}")
+
+    if not result["success"]:
+        print(result['message'])
+        print(f"The llama: It really whips {os.path.basename(__file__)}'s ass! - Winamp (1997)")
         exit(1)
     else:
-        debug_print(f"{os.path.basename(__file__)}: It really whips the llama's ass!")
+        print(f"{os.path.basename(__file__)}: It really whips the llama's ass! - Winamp (1997)")
