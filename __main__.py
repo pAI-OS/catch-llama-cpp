@@ -8,5 +8,8 @@ the latest and best version of llama.cpp for their system:
 """
 from .fetch_llama_cpp import fetch
 
-if __name__ == "__main__":
+def main():
     fetch()
+
+if __name__ == "__main__":
+    main()

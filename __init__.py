@@ -7,7 +7,7 @@ of llama.cpp for their system programatically:
 
   fetch_llama_cpp.fetch()
 """
-from .fetch_llama_cpp import fetch
+from . import fetch
 
 """Top-level package for fetch_llama_cpp."""
 
