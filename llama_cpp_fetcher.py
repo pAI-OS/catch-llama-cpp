@@ -218,7 +218,7 @@ def run_binary_with_version(extract_dir):
     except Exception as e:
         print(f"Failed to run {binary_name}: {e}")
 
-def main():
+def fetch():
     print("Starting the download process...")
     release_info = get_latest_release()
     system, arch = get_system_info()
@@ -249,4 +249,4 @@ def main():
         print(f"{os.path.basename(__file__)}: It really whips the llama's ass!")
 
 if __name__ == "__main__":
-    main()
+    fetch()
