@@ -53,8 +53,8 @@ There are 4 ways you can run llama_cpp_fetcher:
 **3. As a container**
 
     ```bash
-    % podman run -it llama_cpp_fetcher
-    % docker run -it llama_cpp_fetcher
+    % podman run -v $PWD:/app llama_cpp_fetcher
+    % docker run -v $PWD:/app llama_cpp_fetcher
     ```
 
 ## Environment
