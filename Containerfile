@@ -19,5 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Python dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
+# Create the output directory
+RUN mkdir -p /app/llama.cpp
+
 # Run latest-llama-cpp.py when the container launches
 CMD ["python", "llama_cpp_fetcher.py"]
