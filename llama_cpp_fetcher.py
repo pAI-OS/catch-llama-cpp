@@ -260,7 +260,10 @@ def fetch():
         "cuda_version": cuda_version,
         "driver_version": driver_version,
         "downloaded_file": None,
-        "observed_version": None
+        "observed_version": None,
+        "avx_version": "avx512" if avx512 else "avx2" if avx2 else "avx" if avx else None,
+        "os_name": platform.system(),
+        "architecture": arch
     }
     
     if asset_url:
@@ -274,8 +277,8 @@ def fetch():
         observed_version = run_binary_with_version(EXTRACT_DIR, expected_version)
         
         result.update({
-            "success": version is not None,
-            "message": "Suitable binary was found and ran successfully." if version is not None else "Suitable binary was found but failed to run.",
+            "success": observed_version is not None,
+            "message": "Suitable binary was found and ran successfully." if observed_version is not None else "Suitable binary was found but failed to run.",
             "downloaded_file": asset_url.split('/')[-1] if asset_url else None,
             "expected_version": expected_version,
             "observed_version": observed_version
@@ -302,6 +305,9 @@ if __name__ == "__main__":
     print(f"GPU Vendor: {result['gpu_vendor']}")
     print(f"CUDA Version: {result['cuda_version']}")
     print(f"Driver Version: {result['driver_version']}")
+    print(f"AVX Version: {result['avx_version']}")
+    print(f"OS Name: {result['os_name']}")
+    print(f"Architecture: {result['architecture']}")
 
     if not result["success"]:
         print(result['message'])
