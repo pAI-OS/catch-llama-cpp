@@ -8,12 +8,11 @@ import cpuinfo
 import zipfile
 import tarfile
 from pathlib import Path
-from packaging import version
+from packaging.version import parse as version_parse
 
-# Downloads the best binary distribution of llama.cpp for your system and graphics card (if present)
-
-# GitHub API URL for the latest release
-GITHUB_API_URL = "https://api.github.com/repos/ggerganov/llama.cpp/releases/latest"
+# Repository information
+GITHUB_REPO = "ggerganov/llama.cpp"
+GITHUB_API_URL = "https://api.github.com/repos/{repo}/releases/{tags}{version}"
 EXTRACT_DIR = Path("llama.cpp")
 DOWNLOAD_DIR = EXTRACT_DIR
 DEBUG = False
@@ -40,11 +39,16 @@ def debug_print(message, **kwargs):
     if DEBUG:
         print(message, **kwargs)
 
-def get_latest_release():
-    debug_print("Fetching the latest release information from GitHub...")
-    response = requests.get(GITHUB_API_URL)
+def get_release_info(version="latest"):
+    debug_print(f"Fetching the {version} release information from GitHub...")
+    if version == "latest":
+        url = GITHUB_API_URL.format(repo=GITHUB_REPO, tags="", version="latest")
+    else:
+        url = GITHUB_API_URL.format(repo=GITHUB_REPO, tags="tags/", version=version)
+    
+    response = requests.get(url)
     response.raise_for_status()
-    debug_print("Latest release information fetched successfully.")
+    debug_print(f"{version.capitalize()} release information fetched successfully.")
     return response.json()
 
 def get_system_info():
@@ -145,7 +149,7 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     for cuda_version in available_cuda_versions:
         required_driver_version = CUDA_DRIVER_MAP.get(cuda_version, {}).get(system, 'inf')
         debug_print(f"Checking CUDA version {cuda_version} which requires driver version {required_driver_version}")
-        if driver_version is not None and version.parse(str(driver_version)) >= version.parse(required_driver_version):
+        if driver_version is not None and version_parse(str(driver_version)) >= version_parse(required_driver_version):
             debug_print(f"Driver version {driver_version} is sufficient for CUDA version {cuda_version}")
             for asset in assets:
                 if patterns[system][gpu_vendor].match(asset['name']):
@@ -242,9 +246,13 @@ def run_binary_with_version(extract_dir, expected_version):
         debug_print(f"Failed to run {binary_name}: {e}")
         return None
 
-def fetch():
+def fetch(version="latest"):
+    # llama.cpp release tags are an integer prefixed with "b" (e.g. "b3091")
+    if version != "latest" and not version.startswith("b"):
+        version = "b" + version
+
     debug_print("Starting the download process...")
-    release_info = get_latest_release()
+    release_info = get_release_info(version)
     system, arch = get_system_info()
     has_gpu, gpu_vendor, cuda_version, driver_version = check_nvidia_gpu()
     
@@ -293,33 +301,37 @@ def fetch():
     
     return result
 
-def main():
+def main(version="latest"):
     #DEBUG=True
+    result = None
     try:
-        result = fetch()
+        result = fetch(version)
     except Exception as e:
         if DEBUG:
             raise
         else:
             print(f"An exception occurred: {e}")
 
-    print(f"Expected version: {result['expected_version']}")
-    print(f"Observed version: [b]{result['observed_version']}")
-    print(f"Downloaded File: {result['downloaded_file']}")
-    print(f"GPU Detected: {result['gpu_detected']}")
-    print(f"GPU Vendor: {result['gpu_vendor']}")
-    print(f"CUDA Version: {result['cuda_version']}")
-    print(f"Driver Version: {result['driver_version']}")
-    print(f"AVX Version: {result['avx_version']}")
-    print(f"OS Name: {result['os_name']}")
-    print(f"Architecture: {result['architecture']}")
+    if result:
+        print(f"Expected version: {result['expected_version']}")
+        print(f"Observed version: {result['observed_version']}")
+        print(f"Downloaded File: {result['downloaded_file']}")
+        print(f"GPU Detected: {result['gpu_detected']}")
+        print(f"GPU Vendor: {result['gpu_vendor']}")
+        print(f"CUDA Version: {result['cuda_version']}")
+        print(f"Driver Version: {result['driver_version']}")
+        print(f"AVX Version: {result['avx_version']}")
+        print(f"OS Name: {result['os_name']}")
+        print(f"Architecture: {result['architecture']}")
 
-    if not result["success"]:
-        print(result['message'])
-        print(f"The llama: It really whips {os.path.basename(__file__)}'s ass! - Winamp (1997)")
-        exit(1)
-    else:
-        print(f"{os.path.basename(__file__)}: It really whips the llama's ass! - Winamp (1997)")
+        if not result["success"]:
+            print(result['message'])
+            print(f"The llama: It really whips {os.path.basename(__file__)}'s ass! - Winamp (1997)")
+            exit(1)
+        else:
+            print(f"{os.path.basename(__file__)}: It really whips the llama's ass! - Winamp (1997)")
 
 if __name__ == "__main__":
-    main()
+    import sys
+    version = sys.argv[1] if len(sys.argv) > 1 else "latest"
+    main(version)
