@@ -166,7 +166,7 @@ def select_best_asset(assets, system, arch, gpu_vendor, driver_version, avx, avx
     debug_print("No suitable asset found.")
     return None
 
-def download_and_extract(url, download_dir, extract_dir):
+def download_and_extract(url, download_dir, extract_dir, delete_after_extraction=True):
     try:
         debug_print(f"Downloading asset from {url}...")
         
@@ -210,6 +210,11 @@ def download_and_extract(url, download_dir, extract_dir):
                 if item.suffix not in non_binary_extensions:
                     item.chmod(item.stat().st_mode | 0o111)  # Add execute permissions
             debug_print("Set execute permissions for binaries on POSIX system.")
+
+        # Delete the downloaded file after extraction if the option is enabled
+        if delete_after_extraction:
+            file_path.unlink()
+            debug_print(f"Deleted the downloaded file {file_path}")
 
         debug_print("Extraction complete.")
         return True
